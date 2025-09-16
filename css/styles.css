@@ -1,9 +1,9 @@
 :root {
     --bg-primary: #ffffff;
-    --bg-secondary: #f8f9fa;
+    --bg-secondary: #ffffff;
     --text-primary: #000000;
     --text-secondary: #666666;
-    --accent: #e50914;
+    --accent: #000000;
     --card-bg: #ffffff;
     --shadow: rgba(0, 0, 0, 0.1);
     --border: #e0e0e0;
@@ -143,8 +143,8 @@ body {
 }
 
 .movie-card {
-    flex-shrink: 0;
-    width: 200px;
+    flex-shrink: 0.031;
+    width: 300px;
     background-color: var(--card-bg);
     overflow: hidden;
     box-shadow: 0 4px 12px var(--shadow);
@@ -158,8 +158,8 @@ body {
 }
 
 .movie-poster {
-    width: 100px;
-    height: 170px;
+    width: 155px;
+    height: 200px;
     object-fit: cover;
 }
 
@@ -175,6 +175,7 @@ body {
     -webkit-box-orient: vertical;
     overflow: hidden;
     font-size: 15px;
+    width: 140px;
 }
 
 .movie-rating {
