@@ -79,7 +79,7 @@ function createMovieCard(movie) {
         <div class="movie-info">
             <div class="movie-title">${movie.title}</div>
             <div class="movie-rating">
-                <span class="rating-star">⭐</span>
+                <span class="rating-star"><img src="assets/star.svg"</span>
                 <span>${movie.vote_average.toFixed(1)} / 10 IMDb</span>
             </div>
         </div>
