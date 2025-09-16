@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <link rel="stylesheet" type="text/css" href="styles.css">
+  <title>Document</title>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">MovieFlix</div>
+            <div class="nav-items">
+                <div class="nav-item active" data-category="popular">Popular</div>
+                <div class="nav-item" data-category="top_rated">Top Rated</div>
+                <div class="nav-item" data-category="upcoming">Upcoming</div>
+            </div>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <input type="text" class="search-bar" placeholder="Search movies..." id="searchBar">
+                <button class="theme-toggle" id="themeToggle">🌙</button>
+            </div>
+        </nav>
+    </header>
+
+    <section class="now-playing">
+        <h2 class="section-title">Now Playing</h2>
+        <div class="horizontal-scroll" id="nowPlayingContainer">
+            <!-- Now playing movies will be loaded here -->
+        </div>
+    </section>
+
+    <main class="main-content">
+        <h2 class="section-title" id="mainTitle">Popular Movies</h2>
+        <div class="movies-grid" id="moviesGrid">
+            <!-- Movies will be loaded here -->
+        </div>
+        <div class="loading" id="loading">Loading more movies...</div>
+    </main>
+
+    <nav class="mobile-nav">
+        <div class="mobile-nav-item active" data-category="popular">
+            <span></span>
+            <span>Popular</span>
+        </div>
+        <div class="mobile-nav-item" data-category="top_rated">
+            <span></span>
+            <span>Top Rated</span>
+        </div>
+        <div class="mobile-nav-item" data-category="upcoming">
+            <span></span>
+            <span>Upcoming</span>
+        </div>
+        <div class="mobile-nav-item" id="searchToggle">
+            <span></span>
+            <span>Search</span>
+        </div>
+    </nav>
+
+    <div class="modal" id="movieModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <img class="modal-backdrop" id="modalBackdrop" src="" alt="">
+                <button class="modal-close" id="modalClose">×</button>
+            </div>
+            <div class="modal-body">
+                <h2 class="modal-title" id="modalTitle"></h2>
+                <div class="modal-meta">
+                    <div>⭐ <span id="modalRating"></span></div>
+                    <div>📅 <span id="modalDate"></span></div>
+                    <div>⏱️ <span id="modalRuntime"></span> min</div>
+                </div>
+                <p class="modal-overview" id="modalOverview"></p>
+            </div>
+        </div>
+    </div>
+  <script src="scripts.js"></script>
+</body>
+</html>
