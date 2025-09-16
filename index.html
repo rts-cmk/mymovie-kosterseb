@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
   <link rel="stylesheet" type="text/css" href="css/styles.css">
-  <title>Document</title>
+  <title>NetFlæsk | What to Watch</title>
 </head>
 <body>
     <header class="header">
@@ -18,7 +18,7 @@
             </div>
             <div style="display: flex; gap: 1rem; align-items: center;">
                 <input type="text" class="search-bar" placeholder="Search movies..." id="searchBar">
-                <button class="theme-toggle" id="themeToggle">🌙</button>
+                <button class="theme-toggle" id="themeToggle"></button>
             </div>
         </nav>
     </header>
@@ -31,7 +31,7 @@
     </section>
 
     <main class="main-content">
-        <h2 class="section-title" id="mainTitle">Popular Movies</h2>
+        <h2 class="section-title" id="mainTitle">Popular</h2>
         <div class="movies-grid" id="moviesGrid">
             <!-- Movies will be loaded here -->
         </div>
@@ -40,20 +40,13 @@
 
     <nav class="mobile-nav">
         <div class="mobile-nav-item active" data-category="popular">
-            <span></span>
             <span>Popular</span>
         </div>
         <div class="mobile-nav-item" data-category="top_rated">
-            <span></span>
             <span>Top Rated</span>
         </div>
         <div class="mobile-nav-item" data-category="upcoming">
-            <span></span>
             <span>Upcoming</span>
-        </div>
-        <div class="mobile-nav-item" id="searchToggle">
-            <span></span>
-            <span>Search</span>
         </div>
     </nav>
 
