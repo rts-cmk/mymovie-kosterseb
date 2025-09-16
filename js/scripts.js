@@ -2,6 +2,7 @@ const API_KEY = '4f5f43495afcc67e9553f6c684a82f84';
 const BASE_URL = 'https://api.themoviedb.org/3';
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
 const BACKDROP_BASE_URL = 'https://image.tmdb.org/t/p/w1280';
+const PEOPLE_BASE_URL = 'https://image.tmdb.org/t/p/w185';
 
 // App State
 let currentCategory = 'popular';
@@ -43,6 +44,8 @@ async function fetchMovies(category, page = 1, query = '') {
     } else {
         url = `${BASE_URL}/movie/${category}?api_key=${API_KEY}&page=${page}`;
     }
+
+    console.log('Fetching URL:', url);
 
     try {
         const response = await fetch(url);
