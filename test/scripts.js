@@ -98,7 +98,7 @@ function renderMovieCard(movie) {
     card.onclick = () => showMovieDetail(movie.id);
 
     card.innerHTML = `
-    <div class="movie-poster" style="background-image: url('${IMAGE_BASE_URL}${movie.poster_path}')"></div>
+    <div class="movie-poster blur-webkit" style="background-image: url('${IMAGE_BASE_URL}${movie.poster_path}')"></div>
         <div class="movie-title">${movie.title}</div>
         <div class="movie-rating">
             <svg class="star-icon" viewBox="0 0 24 24" fill="currentColor">
