@@ -79,6 +79,7 @@ function createMovieCard(movie) {
 
     card.innerHTML = `
         <img class="movie-poster" src="${posterPath}" alt="${movie.title}">
+        <img class="movie-poster-blurred" src="${posterPath}" alt="${movie.title}">
         <div class="movie-info">
             <div class="movie-title">${movie.title}</div>
             <div class="movie-rating">

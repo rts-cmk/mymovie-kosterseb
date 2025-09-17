@@ -98,7 +98,7 @@ function renderMovieCard(movie) {
     card.onclick = () => showMovieDetail(movie.id);
 
     card.innerHTML = `
-        <div class="movie-poster" style="background-image: url('${IMAGE_BASE_URL}${movie.poster_path}')"></div>
+    <div class="movie-poster" style="background-image: url('${IMAGE_BASE_URL}${movie.poster_path}')"></div>
         <div class="movie-title">${movie.title}</div>
         <div class="movie-rating">
             <svg class="star-icon" viewBox="0 0 24 24" fill="currentColor">
@@ -116,8 +116,17 @@ function renderPopularItem(movie) {
     item.className = 'popular-item';
     item.onclick = () => showMovieDetail(movie.id);
 
-    const releaseYear = new Date(movie.release_date).getFullYear();
-    const genres = movie.genre_ids ? movie.genre_ids.slice(0, 3).map(id => getGenreName(id)) : [];
+    // Handle genres - could be genre_ids (from basic data) or genres (from detailed data)
+    let genres = [];
+    if (movie.genres && movie.genres.length > 0) {
+        // From detailed movie data
+        genres = movie.genres.slice(0, 3).map(genre => genre.name);
+    } else if (movie.genre_ids && movie.genre_ids.length > 0) {
+        // From basic movie data
+        genres = movie.genre_ids.slice(0, 3).map(id => getGenreName(id));
+    }
+
+    const duration = movie.runtime ? formatRuntime(movie.runtime) : 'Loading...';
 
     item.innerHTML = `
         <div class="popular-poster" style="background-image: url('${IMAGE_BASE_URL}${movie.poster_path}')"></div>
@@ -133,10 +142,10 @@ function renderPopularItem(movie) {
                 ${genres.map(genre => `<span class="genre-tag">${genre}</span>`).join('')}
             </div>
             <div class="movie-duration">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm1-13H11v6l5.25 3.15.75-1.23L13 12.25V7z"/>
-                </svg>
-                ${releaseYear}
+            <svg width="10px" height="10px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4ZM2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12ZM11.8284 6.75736C12.3807 6.75736 12.8284 7.20507 12.8284 7.75736V12.7245L16.3553 14.0653C16.8716 14.2615 17.131 14.8391 16.9347 15.3553C16.7385 15.8716 16.1609 16.131 15.6447 15.9347L11.4731 14.349C11.085 14.2014 10.8284 13.8294 10.8284 13.4142V7.75736C10.8284 7.20507 11.2761 6.75736 11.8284 6.75736Z" fill="#0F1729"/>
+</svg>    
+            ${duration}
             </div>
         </div>
     `;
@@ -260,18 +269,45 @@ async function loadPopularMovies(page = 1) {
     if (isLoading) return;
     isLoading = true;
 
-    const data = await fetchMovies('movie/popular', page);
-    const list = document.getElementById('popularList');
+    try {
+        const data = await fetchMovies('movie/popular', page);
+        const list = document.getElementById('popularList');
 
-    if (page === 1) {
-        list.innerHTML = '';
-        allMovies = [];
+        if (page === 1) {
+            list.innerHTML = '';
+            allMovies = [];
+        }
+
+        // Process movies in batches to avoid overwhelming the API
+        const batchSize = 5;
+        const movies = data.results;
+
+        for (let i = 0; i < movies.length; i += batchSize) {
+            const batch = movies.slice(i, i + batchSize);
+
+            // Use existing fetchMovieDetails function for each movie in the batch
+            const detailedMoviesPromises = batch.map(movie =>
+                fetchMovieDetails(movie.id)
+            );
+
+            const detailedMovies = await Promise.all(detailedMoviesPromises);
+
+            // Add movies to the list with full details including runtime
+            detailedMovies.forEach(movie => {
+                if (movie) {
+                    allMovies.push(movie);
+                    list.appendChild(renderPopularItem(movie));
+                }
+            });
+
+            // Small delay between batches to be respectful to the API
+            if (i + batchSize < movies.length) {
+                await new Promise(resolve => setTimeout(resolve, 200));
+            }
+        }
+    } catch (error) {
+        console.error('Error loading popular movies:', error);
     }
-
-    data.results.forEach(movie => {
-        allMovies.push(movie);
-        list.appendChild(renderPopularItem(movie));
-    });
 
     currentPage = page;
     isLoading = false;

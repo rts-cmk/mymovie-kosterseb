@@ -163,6 +163,18 @@ body {
     object-fit: cover;
 }
 
+.movie-poster-blurred img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    filter: blur(8px);
+    transform: scale(1.1);
+    position: absolute;
+    top: 100px;
+    left: 0;
+    z-index: -1;
+}
+
 .movie-info {
     padding: 1rem;
 }
