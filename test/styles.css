@@ -270,7 +270,7 @@ body.dark-mode .blur-webkit {
     left top, 
     left bottom, 
     from(transparent),
-    color-stop(0.2, rgba(0,0,0,0.2)),
+    color-stop(0.2, rgba(0, 0, 0, 0.415)),
     to(rgba(0,0,0,0.4))
   );
 }
