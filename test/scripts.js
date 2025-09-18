@@ -80,15 +80,17 @@ async function fetchMovies(endpoint, page = 1) {
 }
 
 async function fetchMovieDetails(movieId) {
-    const [movieResponse, creditsResponse] = await Promise.all([
+    const [movieResponse, creditsResponse, videosResponse] = await Promise.all([
         fetch(`${BASE_URL}/movie/${movieId}?api_key=${API_KEY}`),
-        fetch(`${BASE_URL}/movie/${movieId}/credits?api_key=${API_KEY}`)
+        fetch(`${BASE_URL}/movie/${movieId}/credits?api_key=${API_KEY}`),
+        fetch(`${BASE_URL}/movie/${movieId}/videos?api_key=${API_KEY}`)
     ]);
 
     const movie = await movieResponse.json();
     const credits = await creditsResponse.json();
+    const videos = await videosResponse.json();
 
-    return { ...movie, credits };
+    return { ...movie, credits, videos };
 }
 
 // Render Functions
@@ -183,15 +185,36 @@ function showMovieDetail(movieId) {
     fetchMovieDetails(movieId).then(movie => {
         const cast = movie.credits.cast.slice(0, 6);
         const genres = movie.genres.slice(0, 3);
+        const trailers = movie.videos.results.filter(video =>
+            video.site === 'YouTube' &&
+            (video.type === 'Trailer' || video.type === 'Teaser')
+        );
+
+        const officialTrailer = trailers.find(video =>
+            video.official && video.type === 'Trailer'
+        );
+
+        const bestTrailer = officialTrailer ||
+            trailers.find(video => video.type === 'Trailer') ||
+            trailers[0];
 
         detailContent.innerHTML = `
             <div class="movie-backdrop" style="background-image: url('${IMAGE_BASE_URL}${movie.backdrop_path}')">
-                <button class="play-button">
-                    <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M8 5v14l11-7z"/>
-                    </svg>
-                </button>
-                <div class="play-text">Play Trailer</div>
+    ${bestTrailer ? `
+        <button class="play-button" onclick="playTrailer('${bestTrailer.key}')">
+            <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8 5v14l11-7z"/>
+            </svg>
+        </button>
+        <div class="play-text">Play Trailer</div>
+    ` : `
+        <button class="play-button" disabled style="opacity: 0.5;">
+            <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8 5v14l11-7z"/>
+            </svg>
+        </button>
+        <div class="play-text">No Trailer Available</div>
+    `}
                 <button class="bookmark-btn">
                     <svg class="bookmark-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>
@@ -252,6 +275,46 @@ function showMovieDetail(movieId) {
 // Back button
 document.getElementById('backBtn').addEventListener('click', () => {
     document.getElementById('detailView').classList.remove('active');
+});
+
+// Video modal functions
+function playTrailer(videoKey) {
+    const videoModal = document.getElementById('videoModal');
+    const videoFrame = document.getElementById('videoFrame');
+
+    videoFrame.src = `https://www.youtube.com/embed/${videoKey}?autoplay=1&rel=0&modestbranding=1`;
+    videoModal.classList.add('active');
+
+    // Prevent body scroll when modal is open
+    document.body.style.overflow = 'hidden';
+}
+
+function closeVideoModal() {
+    const videoModal = document.getElementById('videoModal');
+    const videoFrame = document.getElementById('videoFrame');
+
+    videoFrame.src = '';
+    videoModal.classList.remove('active');
+
+    // Restore body scroll
+    document.body.style.overflow = '';
+}
+
+// Video modal event listeners
+document.getElementById('closeVideoBtn').addEventListener('click', closeVideoModal);
+
+// Close modal when clicking outside
+document.getElementById('videoModal').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('videoModal')) {
+        closeVideoModal();
+    }
+});
+
+// Close modal with escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && document.getElementById('videoModal').classList.contains('active')) {
+        closeVideoModal();
+    }
 });
 
 // Load movies

@@ -707,10 +707,62 @@ body.dark-mode .loading {
     animation: spin 1s ease-in-out infinite;
 }
 
-
-
 @keyframes spin {
     to { transform: rotate(360deg); }
+}
+
+/* Video Modal */
+.video-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.video-modal.active {
+    display: flex;
+}
+
+.video-modal-content {
+    position: relative;
+    width: 90%;
+    max-width: 800px;
+    aspect-ratio: 16/9;
+}
+
+.close-video-btn {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 50%;
+    transition: background 0.2s ease;
+}
+
+.close-video-btn svg {
+    width: 24px;
+    height: 24px;
+}
+
+.close-video-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+#videoFrame {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
 }
 
 /* Responsive */
@@ -721,5 +773,15 @@ body.dark-mode .loading {
     
     .bottom-nav {
         width: 100vw;
+    }
+
+    .video-modal-content {
+        width: 95%;
+        margin: 0 10px;
+    }
+
+    .close-video-btn {
+        top: -50px;
+        right: 10px;
     }
 }
