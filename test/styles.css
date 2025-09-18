@@ -113,7 +113,7 @@ body.dark-mode .header {
     background: none;
     border: none;
     color: inherit;
-    font-size: 35px;
+    font-size: 32px;
     cursor: pointer;
     padding: 8px;
     border-radius: 50%;
@@ -250,8 +250,10 @@ body.dark-mode .movies-grid::-webkit-scrollbar-thumb {
     margin-bottom: 8px;
 }
 
+@supports (-webkit-box-reflect: below) {
 .blur-webkit {
-    -webkit-box-reflect: below -150px -webkit-gradient(
+    -webkit-box-reflect: below -150px 
+    -webkit-gradient(
     linear, 
     left top, 
     left bottom, 
@@ -259,10 +261,6 @@ body.dark-mode .movies-grid::-webkit-scrollbar-thumb {
     color-stop(0.2, rgba(255,255,255,0.3)),
     to(rgba(255,255,255,0.3))
   );
-}
-
-body.dark-mode .movie-poster {
-    background-color: #333;
 }
 
 body.dark-mode .blur-webkit {
@@ -276,6 +274,12 @@ body.dark-mode .blur-webkit {
     to(rgba(0,0,0,0.4))
   );
 }
+}
+
+body.dark-mode .movie-poster {
+    background-color: #333;
+}
+
 
 .movie-title {
     font-size: 14px;
@@ -719,7 +723,7 @@ body.dark-mode .loading {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.95);
+    background: rgba(0, 0, 0, 0.776);
     z-index: 1000;
     align-items: center;
     justify-content: center;

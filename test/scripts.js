@@ -31,9 +31,12 @@ function switchNavPage(page) {
             console.log('Search page selected');
             break;
         case 'favorites':
-            // You can implement favorites functionality here
-            console.log('Favorites page selected');
+            showFavoritesPage();
             break;
+        case 'home':
+            showHomePage();
+            break;
+         
     }
 }
 
