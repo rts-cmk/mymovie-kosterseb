@@ -7,6 +7,8 @@ let isLoading = false;
 let allMovies = [];
 let currentNavPage = 'home';
 
+let favorites = JSON.parse(localStorage.getItem('movieFavorites')) || [];
+
 // Navigation functionality
 function switchNavPage(page) {
     // Remove active class from all nav items
@@ -24,19 +26,15 @@ function switchNavPage(page) {
 
     switch (page) {
         case 'home':
-            // Show home content (already loaded)
+            showHomePage();
             break;
         case 'search':
-            // You can implement search functionality here
-            console.log('Search page selected');
+            mainContent.innerHTML = '<div style="padding: 20px; text-align: center;">Search functionality coming soon!</div>';
             break;
         case 'favorites':
             showFavoritesPage();
             break;
-        case 'home':
-            showHomePage();
-            break;
-         
+
     }
 }
 
@@ -75,6 +73,136 @@ if (savedTheme === 'true') {
 themeToggle.addEventListener('click', toggleTheme);
 detailThemeToggle.addEventListener('click', toggleTheme);
 
+// Bookmark functionality
+function saveFavorites() {
+    localStorage.setItem('movieFavorites', JSON.stringify(favorites));
+}
+
+function addToFavorites(movie) {
+    const existingIndex = favorites.findIndex(fav => fav.id === movie.id);
+    if (existingIndex === -1) {
+        favorites.push({
+            id: movie.id,
+            title: movie.title,
+            poster_path: movie.poster_path,
+            vote_average: movie.vote_average,
+            release_date: movie.release_date,
+            overview: movie.overview,
+            genres: movie.genres,
+            runtime: movie.runtime
+        });
+        saveFavorites();
+    }
+}
+
+function removeFromFavorites(movieId) {
+    favorites = favorites.filter(fav => fav.id !== movieId);
+    saveFavorites();
+}
+
+function isFavorite(movieId) {
+    return favorites.some(fav => fav.id === movieId);
+}
+
+function toggleFavorite(movie) {
+    if (isFavorite(movie.id)) {
+        removeFromFavorites(movie.id);
+    } else {
+        addToFavorites(movie);
+    }
+    updateBookmarkButtons(movie.id);
+
+    if (currentNavPage === 'favorites') {
+        showFavoritesPage();
+    }
+}
+
+function updateBookmarkButtons(movieId) {
+    const bookmarkBtns = document.querySelectorAll('.bookmark-btn');
+    bookmarkBtns.forEach(btn => {
+        const isFav = isFavorite(movieId);
+        const icon = btn.querySelector('.bookmark-icon');
+        if (icon) {
+            if (isFav) {
+                icon.setAttribute('fill', 'currentColor');
+                btn.style.color = '#FFCC00';
+            } else {
+                icon.setAttribute('fill', 'none');
+                btn.style.color = 'white';
+            }
+        }
+    });
+}
+
+function showHomePage() {
+    const mainContent = document.getElementById('mainContent');
+    mainContent.innerHTML =
+        `
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">Now Showing</h2>
+                <button class="see-more">See more</button>
+            </div>
+            <div class="movies-grid" id="nowShowingGrid">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">Popular</h2>
+                <button class="see-more">See more</button>
+            </div>
+            <div class="popular-list" id="popularList">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                </div>
+            </div>
+        </div>
+        `;
+
+    loadNowShowing();
+    loadPopularMovies(1);
+}
+
+function showFavoritesPage() {
+    const mainContent = document.getElementById('mainContent');
+
+    if (favorites.length === 0) {
+        mainContent.innerHTML = `
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">Your Favorites</h2>
+            </div>
+            <div class="empty-favorites">
+                <div class="empty-favorites-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>
+                    </svg>
+                </div>
+                <h3>No favorites yet</h3>
+                <p>Movies you bookmark will appear here.</p>
+            </div>
+        </div>
+        `;
+        return;
+    }
+
+    mainContent.innerHTML = `
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">My Favorites</h2>
+                <span class="favorites-count">${favorites.length} movies</span>
+            </div>
+            <div class="popular-list" id="favoritesList">
+                ${favorites.map(movie => renderPopularItem(movie).outerHTML).join('')}
+            </div>
+        </div>
+    `;
+}
+
 // API Functions
 async function fetchMovies(endpoint, page = 1) {
     const response = await fetch(`${BASE_URL}/${endpoint}?api_key=${API_KEY}&page=${page}`);
@@ -102,7 +230,7 @@ function renderMovieCard(movie) {
     card.className = 'movie-card';
     card.onclick = () => showMovieDetail(movie.id);
 
-    card.innerHTML = `
+    card.innerHTML = /* html */ `
     <div class="movie-poster blur-webkit" style="background-image: url('${IMAGE_BASE_URL}${movie.poster_path}')"></div>
         <div class="movie-title">${movie.title}</div>
         <div class="movie-rating">
@@ -133,7 +261,7 @@ function renderPopularItem(movie) {
 
     const duration = movie.runtime ? formatRuntime(movie.runtime) : 'Loading...';
 
-    item.innerHTML = `
+    item.innerHTML = /* html */ `
         <div class="popular-poster" style="background-image: url('${IMAGE_BASE_URL}${movie.poster_path}')"></div>
         <div class="popular-info">
             <div class="popular-title">${movie.title}</div>
@@ -201,16 +329,16 @@ function showMovieDetail(movieId) {
             trailers.find(video => video.type === 'Trailer') ||
             trailers[0];
 
-        detailContent.innerHTML = `
+        detailContent.innerHTML = /* html */ `
             <div class="movie-backdrop" style="background-image: url('${IMAGE_BASE_URL}${movie.backdrop_path}')">
-    ${bestTrailer ? `
+    ${bestTrailer ? /* html */ `
         <button class="play-button" onclick="playTrailer('${bestTrailer.key}')">
             <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M8 5v14l11-7z"/>
             </svg>
         </button>
         <div class="play-text">Play Trailer</div>
-    ` : `
+    ` : /* html */ `
         <button class="play-button" disabled style="opacity: 0.5;">
             <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M8 5v14l11-7z"/>
@@ -218,11 +346,12 @@ function showMovieDetail(movieId) {
         </button>
         <div class="play-text">No Trailer Available</div>
     `}
-                <button class="bookmark-btn">
-                    <svg class="bookmark-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>
-                    </svg>
-                </button>
+    
+    <button class="bookmark-btn" onclick="toggleFavorite({id: ${movie.id}, title: '${movie.title.replace(/'/g, "\\'")}', poster_path: '${movie.poster_path}', vote_average: ${movie.vote_average}, release_date: '${movie.release_date}', overview: '${movie.overview.replace(/'/g, "\\'")}', genres: ${JSON.stringify(movie.genres)}, runtime: ${movie.runtime}})">
+        <svg class="bookmark-icon" viewBox="0 0 24 24" fill="${isFavorite(movie.id) ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" style="color: ${isFavorite(movie.id) ? '#FFB800' : 'white'};">
+            <path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>
+        </svg>
+    </button>
             </div>
             
             <div class="detail-content">

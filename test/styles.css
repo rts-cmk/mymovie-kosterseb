@@ -471,9 +471,9 @@ body.dark-mode .detail-view {
 
 .bookmark-btn {
     position: absolute;
-    top: 320px;
+    top: 250px;
     right: 20px;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.831);
     border: none;
     padding: 10px;
     border-radius: 8px;
@@ -688,6 +688,51 @@ body.dark-mode .nav-icon.light-mode {
 
 body.dark-mode .nav-icon.dark-mode {
     display: block;
+}
+
+/* Favorites Page */
+.empty-favorites {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+}
+
+body.dark-mode .empty-favorites {
+    color: #999;
+}
+
+.empty-favorites-icon {
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.empty-favorites h3 {
+    font-size: 18px;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.empty-favorites p {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+.favorites-count {
+    color: #666;
+    font-size: 14px;
+    font-weight: normal;
+}
+
+body.dark-mode .favorites-count {
+    color: #999;
+}
+
+.bookmark-btn {
+    transition: all 0.3s ease;
+}
+
+.bookmark-btn:hover {
+    transform: scale(1.1);
 }
 
 /* Loading States */
