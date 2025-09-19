@@ -378,7 +378,6 @@ const movies = {
                 grid.appendChild(card);
             });
         } catch (error) {
-            console.error('Error loading now showing:', error);
             utils.showError(dom.get('nowShowingGrid'), 'Error loading movies');
         }
     },
@@ -418,7 +417,6 @@ const movies = {
                 }
             }
         } catch (error) {
-            console.error('Error loading popular movies:', error);
             if (page === 1) {
                 utils.showError(dom.get('popularList'), 'Error loading movies');
             }
@@ -510,7 +508,7 @@ const movies = {
                         <h3>User Reviews</h3>
                         <div class="reviews-list">
                         ${reviews.length > 0 ?
-                    reviews.slice(0, 5).map(review => `
+                    reviews.map(review => `
                         <div class="review-item">
                             <div class="review-author">
                                 A review by <strong> ${utils.escapeHtml(review.author)}
@@ -535,7 +533,6 @@ const movies = {
                 </div>
             `;
         } catch (error) {
-            console.error('Error loading movie details:', error);
             detailContent.innerHTML = '<div style="padding: 50px 20px; text-align: center; color: red;">Error loading movie details. Please try again.</div>';
         }
     }
