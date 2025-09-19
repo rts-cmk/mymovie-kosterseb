@@ -33,13 +33,13 @@ const utils = {
         const mins = minutes % 60;
         return `${hours}h ${mins}min`;
     },
-    
+
     getGenreName: (genreId) => GENRES[genreId] || 'Unknown',
-    
+
     escapeHtml: (text) => text.replace(/'/g, '&#39;'),
-    
+
     delay: (ms) => new Promise(resolve => setTimeout(resolve, ms)),
-    
+
     showError: (element, message) => {
         if (element) {
             element.innerHTML = `<div style="color: red; padding: 20px; text-align: center;">${message}</div>`;
@@ -68,17 +68,21 @@ const api = {
     },
 
     async fetchMovieDetails(movieId) {
-        const [movieRes, creditsRes, videosRes] = await Promise.all([
+        const [movieRes, creditsRes, videosRes, reviewsRes] = await Promise.all([
             fetch(`${CONFIG.BASE_URL}/movie/${movieId}?api_key=${CONFIG.API_KEY}`),
             fetch(`${CONFIG.BASE_URL}/movie/${movieId}/credits?api_key=${CONFIG.API_KEY}`),
-            fetch(`${CONFIG.BASE_URL}/movie/${movieId}/videos?api_key=${CONFIG.API_KEY}`)
+            fetch(`${CONFIG.BASE_URL}/movie/${movieId}/videos?api_key=${CONFIG.API_KEY}`),
+            fetch(`${CONFIG.BASE_URL}/movie/${movieId}/reviews?api_key=${CONFIG.API_KEY}`)
         ]);
 
-        const [movie, credits, videos] = await Promise.all([
-            movieRes.json(), creditsRes.json(), videosRes.json()
+        const [movie, credits, videos, reviews] = await Promise.all([
+            movieRes.json(),
+            creditsRes.json(),
+            videosRes.json(),
+            reviewsRes.json()
         ]);
 
-        return { ...movie, credits, videos };
+        return { ...movie, credits, videos, reviews };
     }
 };
 
@@ -139,7 +143,7 @@ const favorites = {
     updateBookmarkButtons(movieId) {
         const buttons = dom.getAll(`.bookmark-btn[data-id="${movieId}"]`);
         const isFav = this.isFavorite(movieId);
-        
+
         buttons.forEach(btn => {
             const icon = btn.querySelector('.bookmark-icon');
             if (icon) {
@@ -270,7 +274,7 @@ const pages = {
         // Update navigation
         dom.getAll('.nav-item').forEach(item => item.classList.remove('active'));
         document.querySelector(`[data-page="${page}"]`)?.classList.add('active');
-        
+
         state.currentNavPage = page;
         const mainContent = dom.get('mainContent');
 
@@ -348,12 +352,12 @@ const pages = {
         state.favorites.forEach(movie => {
             const item = dom.create('div', 'popular-item favorite-item');
             item.innerHTML = templates.favoriteItem(movie);
-            
+
             // Add click handler to navigate to detail view
             item.addEventListener('click', () => {
                 movies.showDetail(movie.id);
             });
-            
+
             favoritesList.appendChild(item);
         });
     }
@@ -437,13 +441,14 @@ const movies = {
 
             const cast = movie.credits.cast.slice(0, 6);
             const genres = movie.genres.slice(0, 3);
-            const trailers = movie.videos.results.filter(v => 
+            const reviews = movie.reviews.results;
+            const trailers = movie.videos.results.filter(v =>
                 v.site === 'YouTube' && (v.type === 'Trailer' || v.type === 'Teaser')
             );
-            
+
             const bestTrailer = trailers.find(v => v.official && v.type === 'Trailer') ||
-                              trailers.find(v => v.type === 'Trailer') ||
-                              trailers[0];
+                trailers.find(v => v.type === 'Trailer') ||
+                trailers[0];
 
             detailContent.innerHTML = `
                 <div class="movie-backdrop" style="background-image: url('${CONFIG.IMAGE_BASE_URL}${movie.backdrop_path}')">
@@ -502,8 +507,31 @@ const movies = {
                     </div>
 
                     <div class="reviews-section">
-                        <h3>User Reviews <span class="see-more" style="font-size: 12px; font-weight: normal;">See more</span></h3>
-                        <div style="padding: 20px; text-align: center; color: #888;">Reviews functionality coming soon!</div>
+                        <h3>User Reviews</h3>
+                        <div class="reviews-list">
+                        ${reviews.length > 0 ?
+                    reviews.slice(0, 5).map(review => `
+                        <div class="review-item">
+                            <div class="review-author">
+                                A review by <strong> ${utils.escapeHtml(review.author)}
+                                ${review.author_details.rating ? ` 
+                                    <span class="review-rating">
+                                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path fill-rule="evenodd" clip-rule="evenodd" d="M6 9.5L2.47329 11.3541L3.14683 7.42705L0.293661 4.6459L4.23664 4.07295L6 0.5L7.76336 4.07295L11.7063 4.6459L8.85317 7.42705L9.52671 11.3541L6 9.5Z" fill="#FFC319"/>
+                                        </svg>
+                                    ${review.author_details.rating}/10</span>` : ''}
+                                    </strong>
+                            </div>
+
+                            <div class="review-content">
+                                    ${utils.escapeHtml(review.content.substring(0, 300))}.. 
+                                    <a href="${review.url}" target="_blank">read more</a>
+                            </div>
+                        </div>
+                                `).join('') :
+                    '<p class="no-reviews">No reviews available.</p>'
+                }
+                        </div>
                 </div>
             `;
         } catch (error) {
@@ -518,7 +546,7 @@ const video = {
     play(videoKey) {
         const modal = dom.get('videoModal');
         const frame = dom.get('videoFrame');
-        
+
         frame.src = `https://www.youtube.com/embed/${videoKey}?autoplay=1&rel=0&modestbranding=1`;
         modal.classList.add('active');
         document.body.style.overflow = 'hidden';
@@ -527,7 +555,7 @@ const video = {
     close() {
         const modal = dom.get('videoModal');
         const frame = dom.get('videoFrame');
-        
+
         frame.src = '';
         modal.classList.remove('active');
         document.body.style.overflow = '';
@@ -539,10 +567,10 @@ const theme = {
     toggle() {
         document.body.classList.toggle('dark-mode');
         const isDark = document.body.classList.contains('dark-mode');
-        
+
         dom.get('themeToggle')?.classList.toggle('active', isDark);
         dom.get('detailThemeToggle')?.classList.toggle('active', isDark);
-        
+
         localStorage.setItem('darkMode', isDark);
     },
 
@@ -560,7 +588,7 @@ const theme = {
 function handleScroll() {
     const mainContent = dom.get('mainContent');
     if (!mainContent) return;
-    
+
     const { scrollTop, scrollHeight, clientHeight } = mainContent;
     if (scrollTop + clientHeight >= scrollHeight - CONFIG.SCROLL_THRESHOLD && !state.isLoading) {
         movies.loadPopular(state.currentPage + 1);
@@ -588,7 +616,7 @@ function init() {
 
     dom.get('themeToggle')?.addEventListener('click', theme.toggle);
     dom.get('detailThemeToggle')?.addEventListener('click', theme.toggle);
-    
+
     dom.get('backBtn')?.addEventListener('click', () => {
         dom.get('detailView')?.classList.remove('active');
         state.currentMovieDetail = null;
