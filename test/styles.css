@@ -599,6 +599,10 @@ body.dark-mode .tap-hint {
     color: var(--text-secondary);
 }
 
+.cast-section {
+    margin-bottom: 30px;
+}
+
 .cast-section h3 {
     font-size: 18px;
     margin-bottom: 15px;

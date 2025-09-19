@@ -489,7 +489,7 @@ const movies = {
                         <p>${utils.escapeHtml(movie.overview)}</p>
                     </div>
                     
-                    <div class="cast-section">
+                    <div class="cast-section"">
                         <h3>Cast <span class="see-more" style="font-size: 12px; font-weight: normal;">See more</span></h3>
                         <div class="cast-grid">
                             ${cast.map(actor => `
@@ -500,6 +500,10 @@ const movies = {
                             `).join('')}
                         </div>
                     </div>
+
+                    <div class="reviews-section">
+                        <h3>User Reviews <span class="see-more" style="font-size: 12px; font-weight: normal;">See more</span></h3>
+                        <div style="padding: 20px; text-align: center; color: #888;">Reviews functionality coming soon!</div>
                 </div>
             `;
         } catch (error) {
