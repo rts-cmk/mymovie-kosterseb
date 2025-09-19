@@ -59,7 +59,7 @@ const dom = {
     }
 };
 
-// API functions
+// API functions and data fetching
 const api = {
     async fetchMovies(endpoint, page = 1) {
         const response = await fetch(`${CONFIG.BASE_URL}/${endpoint}?api_key=${CONFIG.API_KEY}&page=${page}`);
